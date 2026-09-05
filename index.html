@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcHub — Calculate Anything, Anytime</title>
+    <meta name="description" content="Fast, free, and accurate calculators and utility tools. Calculate EMI, SIP, Age, Percentages, and more instantly.">
+    <style>
+    /* BASE VARIABLES & SETUP */
+:root {
+    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --accent-color: #4299e1;
+    --accent-hover: #3182ce;
+    --error-color: #e53e3e;
+    --font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --border-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* NEW/UPDATED: Modern app viewport handling */
+html {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    width: 100%;
+    min-height: 100dvh;
+    max-width: 100%;
+    overflow-x: hidden;
+    font-family: var(--font-family);
+    background: var(--bg-gradient);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+/* GLASSMORPHISM UTILITIES */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-btn {
+    background: rgba(255,255,255,0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: var(--transition);
+    text-decoration: none;
+}
+.glass-btn:hover {
+    background: rgba(255,255,255,0.9);
+    transform: translateY(-2px);
+}
+
+/* HEADER & CONTROLS */
+.glass-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.desktop-nav a {
+    text-decoration: none;
+    color: var(--text-primary);
+    margin: 0 1rem;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.desktop-nav a:hover { color: var(--accent-color); }
+
+/* NEW/UPDATED: Flex container for the buttons */
+.music-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* MAIN LAYOUT */
+#app-container {
+    flex: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+}
+
+.view { display: none; animation: fadeIn 0.4s ease; }
+.view.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* HERO & SEARCH */
+.hero { text-align: center; margin-bottom: 3rem; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 1rem; }
+.hero p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 1.1rem; }
+
+.search-bar {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 24px;
+}
+.search-bar input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.75rem;
+    font-size: 1rem;
+    outline: none;
+    color: var(--text-primary);
+}
+
+/* CATEGORIES */
+.category-filters {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+.category-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: var(--transition);
+}
+.category-btn.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+/* CARDS GRID */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.tool-card {
+    padding: 1.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    cursor: pointer;
+}
+.tool-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.15); }
+.card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.card-title { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.card-desc { font-size: 0.9rem; color: var(--text-secondary); flex-grow: 1; margin-bottom: 1rem;}
+.card-arrow { align-self: flex-end; font-weight: bold; color: var(--accent-color); }
+
+/* ADSTERRA PLACEHOLDERS */
+.ad-container {
+    background: rgba(0,0,0,0.05);
+    border: 1px dashed rgba(0,0,0,0.2);
+    border-radius: 8px;
+    text-align: center;
+    padding: 1.5rem;
+    margin: 2rem auto;
+    max-width: 728px;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.ad-placeholder-text { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+/* TOOL VIEW SPECIFICS */
+.main-tool-panel { padding: 2rem; margin: 1rem 0; max-width: 800px; margin-left: auto; margin-right: auto; }
+.tool-header h2 { margin-bottom: 0.5rem; }
+.tool-header p { color: var(--text-secondary); margin-bottom: 2rem; }
+
+/* STANDARD CALCULATOR FORM */
+.calc-form { display: grid; gap: 1.25rem; margin-bottom: 2rem; }
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group label { font-weight: 500; font-size: 0.95rem; }
+.form-group input, .form-group select {
+    padding: 0.75rem;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    background: rgba(255,255,255,0.8);
+    font-size: 1rem;
+    outline: none;
+    transition: var(--transition);
+}
+.form-group input:focus { border-color: var(--accent-color); background: #fff; }
+.calc-submit-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.calc-submit-btn:hover { background: var(--accent-hover); }
+
+/* RESULT AREA */
+.result-area {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    border-left: 4px solid var(--accent-color);
+}
+.result-row { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 1.1rem; }
+.result-row.highlight { font-weight: bold; font-size: 1.25rem; color: var(--accent-color); border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 0.5rem; }
+
+/* ERROR MESSAGE */
+.error-msg { color: var(--error-color); font-size: 0.9rem; margin-top: 0.5rem; }
+
+/* MATH CALCULATOR GRIDS */
+.math-calc-display {
+    background: #fff; border-radius: 8px; padding: 1.5rem; text-align: right; font-size: 2rem;
+    margin-bottom: 1rem; border: 1px solid rgba(0,0,0,0.1); word-wrap: break-word; min-height: 80px;
+}
+.math-calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.math-calc-grid.scientific { grid-template-columns: repeat(5, 1fr); }
+.math-btn {
+    padding: 1rem; font-size: 1.25rem; background: rgba(255,255,255,0.7); border: none;
+    border-radius: 8px; cursor: pointer; transition: background 0.2s; font-weight: 600;
+}
+.math-btn:hover { background: rgba(255,255,255,1); }
+.math-btn.op { background: #edf2f7; color: var(--accent-color); }
+.math-btn.eq { background: var(--accent-color); color: white; }
+
+/* FEATURES & FOOTER */
+.features-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 4rem; }
+.feature-card { padding: 1.5rem; text-align: center; }
+.glass-footer { background: rgba(255,255,255,0.7); border-top: 1px solid var(--glass-border); margin-top: auto; }
+.footer-content { max-width: 1200px; margin: 0 auto; padding: 3rem 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+.footer-col h3, .footer-col h4 { margin-bottom: 1rem; }
+.footer-col a { display: block; color: var(--text-secondary); text-decoration: none; margin-bottom: 0.5rem; transition: color 0.2s; }
+.footer-col a:hover { color: var(--accent-color); }
+.disclaimer-text { font-size: 0.85rem; color: #718096; line-height: 1.5; }
+.footer-bottom { text-align: center; padding: 1.5rem; border-top: 1px solid rgba(0,0,0,0.05); color: var(--text-secondary); }
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .desktop-nav { display: none; }
+    .hero h1 { font-size: 2rem; }
+    .tools-grid { grid-template-columns: 1fr; }
+    .math-calc-grid.scientific { grid-template-columns: repeat(4, 1fr); }
+    .result-row { flex-direction: column; gap: 0.25rem; }
+}
+</style>
+</head>
+<body>
+
+    <!-- PERSISTENT HEADER -->
+    <header class="glass-header">
+        <div class="header-container">
+            <a href="#home" class="logo">
+                <span class="logo-icon">🧮</span> CalcHub
+            </a>
+            <nav class="desktop-nav">
+                <a href="#home">Home</a>
+                <a href="#home">Tools</a>
+            </nav>
+            <div class="music-controls">
+                <!-- NEW: Fullscreen Toggle Button -->
+                <button id="fullscreen-toggle" class="glass-btn" aria-label="Toggle Fullscreen">
+                    <span id="fullscreen-icon">⛶</span>
+                </button>
+                <button id="music-toggle" class="glass-btn" aria-label="Toggle Music">
+                    <span id="music-icon">🔇</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- GLOBAL AUDIO ENGINE (Hidden) -->
+    <audio id="bg-music" loop preload="none">
+        <source src="assets/music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- MAIN APPLICATION CONTAINER -->
+    <main id="app-container">
+
+        <!-- HOMEPAGE VIEW -->
+        <section id="view-home" class="view active">
+            
+            <div class="hero">
+                <h1>Calculate Anything, Anytime.</h1>
+                <p>Fast, free, and completely local calculators right in your browser.</p>
+                
+                <div class="search-bar glass-panel">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" placeholder="Search calculators (e.g., EMI, Percentage, Age)...">
+                </div>
+            </div>
+
+            <!-- ADSTERRA HOMEPAGE TOP SLOT -->
+            <div class="ad-container adsterra-slot" data-format="banner">
+                <!-- ADSTERRA AD SLOT: Place your official Adsterra code here -->
+                <script>
+  atOptions = {
+    'key' : '392adcdb9ea57b5c487bf1b569318099',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/392adcdb9ea57b5c487bf1b569318099/invoke.js"></script>
+
+            </div>
+
+            <div class="category-filters" id="category-filters">
+                <!-- Dynamically generated categories -->
+            </div>
+
+            <div class="tools-grid" id="tools-grid">
+                <!-- Dynamically generated tool cards -->
+            </div>
+
+            <!-- ADSTERRA HOMEPAGE BOTTOM SLOT -->
+            <div class="ad-container adsterra-slot" data-format="native">
+                <!-- ADSTERRA AD SLOT -->
+                <script>
+  atOptions = {
+    'key' : '392adcdb9ea57b5c487bf1b569318099',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/392adcdb9ea57b5c487bf1b569318099/invoke.js"></script>
+
+            </div>
+
+            <div class="features-section">
+                <div class="feature-card glass-panel">
+                    <h3>⚡ Fast</h3>
+                    <p>Calculate results instantly without page reloads.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <h3>📱 Mobile Friendly</h3>
+                    <p>Works perfectly on phones, tablets, and desktops.</p>
+                </div>
+                <div class="feature-card glass-panel">
+                    <h3>🔒 Private</h3>
+                    <p>Calculations happen securely in your browser.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOOL VIEW (Dynamic content injected here) -->
+        <section id="view-tool" class="view hidden">
+            <div class="tool-header">
+                <a href="#home" class="back-btn glass-btn">← Back to Tools</a>
+            </div>
+
+            <!-- ADSTERRA TOOL TOP SLOT -->
+            <div class="ad-container adsterra-slot" data-format="banner">
+                <!-- ADSTERRA AD SLOT -->
+                  <script>
+  atOptions = {
+    'key' : 'dfa31a2794a86911f9da3529ab7e6310',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/dfa31a2794a86911f9da3529ab7e6310/invoke.js"></script>
+
+            </div>
+
+            <div id="tool-content-area" class="glass-panel main-tool-panel">
+                <!-- Tool interface goes here -->
+            </div>
+
+            <!-- ADSTERRA TOOL BOTTOM SLOT -->
+            <div class="ad-container adsterra-slot" data-format="banner">
+                <!-- ADSTERRA AD SLOT -->
+                  <script>
+  atOptions = {
+    'key' : 'dfa31a2794a86911f9da3529ab7e6310',
+    'format' : 'iframe',
+    'height' : 60,
+    'width' : 468,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/dfa31a2794a86911f9da3529ab7e6310/invoke.js"></script>
+
+            </div>
+
+            <div class="related-tools-section">
+                <h3>Related Tools</h3>
+                <div class="tools-grid related-grid" id="related-tools-grid">
+                    <!-- Dynamically generated -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- PERSISTENT FOOTER -->
+    <footer class="glass-footer">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3>CalcHub</h3>
+                <p>Your one-stop utility destination.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="#home">Privacy Policy</a>
+                <a href="#home">Terms of Use</a>
+                <a href="#home">Disclaimer</a>
+            </div>
+            <div class="footer-col">
+                <p class="disclaimer-text">
+                    Calculator results are estimates for informational purposes and should not be considered financial or professional advice.
+                </p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CalcHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        /**
+ * CalcHub - SPA Application Logic
+ * Vanilla JS, Modular, No Backend
+ */
+
+// ==========================================
+// 1. TOOL REGISTRY & DATA
+// ==========================================
+const tools = [
+    { id: 'basic', name: 'Basic Calculator', category: 'Math', icon: '🔢', desc: 'Standard arithmetic calculations.', keywords: ['add', 'subtract', 'math'] },
+    { id: 'scientific', name: 'Scientific Calculator', category: 'Math', icon: '🔬', desc: 'Advanced math, trig, and logarithms.', keywords: ['sin', 'cos', 'tan', 'power', 'math'] },
+    { id: 'percentage', name: 'Percentage Calculator', category: 'Math', icon: '٪', desc: 'Find percentages, increases, and decreases.', keywords: ['percent', 'fraction', 'discount'] },
+    { id: 'emi', name: 'EMI Calculator', category: 'Finance', icon: '🏦', desc: 'Calculate your monthly loan payment.', keywords: ['loan', 'mortgage', 'interest', 'monthly'] },
+    { id: 'sip', name: 'SIP Calculator', category: 'Finance', icon: '📈', desc: 'Estimate mutual fund returns.', keywords: ['investment', 'wealth', 'return', 'finance'] },
+    { id: 'gst', name: 'GST Calculator', category: 'Finance', icon: '🧾', desc: 'Easily add or remove GST from a price.', keywords: ['tax', 'vat', 'goods', 'services'] },
+    { id: 'discount', name: 'Discount Calculator', category: 'Finance', icon: '🛍️', desc: 'Calculate final price after discount.', keywords: ['sale', 'off', 'price', 'shopping'] },
+    { id: 'age', name: 'Age Calculator', category: 'Date & Time', icon: '🎂', desc: 'Find exact age in years, months, and days.', keywords: ['birthday', 'date', 'difference'] },
+    { id: 'converter', name: 'Unit Converter', category: 'Converters', icon: '📏', desc: 'Convert length, weight, temp, and more.', keywords: ['meters', 'kg', 'celsius', 'fahrenheit'] },
+    { id: 'compound', name: 'Compound Interest', category: 'Finance', icon: '🔄', desc: 'Calculate compounding wealth over time.', keywords: ['interest', 'future', 'value', 'finance'] }
+];
+
+const categories = ['All', 'Math', 'Finance', 'Date & Time', 'Converters'];
+
+// ==========================================
+// 2. STATE MANAGEMENT & GLOBALS
+// ==========================================
+const appState = {
+    currentRoute: 'home',
+    musicEnabled: localStorage.getItem('musicEnabled') === 'true',
+    userInteracted: false,
+    currentCategory: 'All'
+};
+
+const DOM = {
+    homeView: document.getElementById('view-home'),
+    toolView: document.getElementById('view-tool'),
+    toolsGrid: document.getElementById('tools-grid'),
+    relatedGrid: document.getElementById('related-tools-grid'),
+    catFilters: document.getElementById('category-filters'),
+    searchInput: document.getElementById('search-input'),
+    toolContentArea: document.getElementById('tool-content-area'),
+    bgMusic: document.getElementById('bg-music'),
+    musicBtn: document.getElementById('music-toggle'),
+    musicIcon: document.getElementById('music-icon'),
+    // NEW: Fullscreen DOM references
+    fullscreenBtn: document.getElementById('fullscreen-toggle'),
+    fullscreenIcon: document.getElementById('fullscreen-icon')
+};
+
+const Formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 });
+
+// ==========================================
+// 3. FULLSCREEN API ENGINE
+// ==========================================
+async function attemptFullscreen() {
+    if (document.fullscreenEnabled && !document.fullscreenElement) {
+        try {
+            await document.documentElement.requestFullscreen();
+        } catch (error) {
+            console.warn('Fullscreen request was blocked or not supported:', error);
+        }
+    }
+}
+
+async function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        await attemptFullscreen();
+    } else if (document.exitFullscreen) {
+        try {
+            await document.exitFullscreen();
+        } catch (error) {
+            console.warn('Exit fullscreen failed:', error);
+        }
+    }
+}
+
+function initFullscreen() {
+    // 1. Listen for clicks on dynamically generated .tool-card elements
+    document.body.addEventListener('click', (event) => {
+        const toolCard = event.target.closest('.tool-card');
+        if (toolCard) {
+            attemptFullscreen();
+        }
+    });
+
+    // 2. Setup the header Fullscreen toggle button
+    if (DOM.fullscreenBtn) {
+        DOM.fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+
+    // 3. Keep UI in sync if user uses Esc key or browser controls to exit fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        if (document.fullscreenElement) {
+            DOM.fullscreenIcon.textContent = '🗗'; // Windowed/collapse icon
+        } else {
+            DOM.fullscreenIcon.textContent = '⛶'; // Expand icon
+        }
+    });
+}
+
+
+// ==========================================
+// 4. MUSIC & AUDIO ENGINE
+// ==========================================
+function initMusic() {
+    DOM.bgMusic.volume = 0.3;
+    updateMusicUI();
+
+    // Start music on first click anywhere if enabled
+    document.body.addEventListener('click', () => {
+        if (!appState.userInteracted) {
+            appState.userInteracted = true;
+            if (appState.musicEnabled) {
+                playMusicSafely();
+            }
+        }
+    }, { once: true });
+
+    DOM.musicBtn.addEventListener('click', async () => {
+        appState.musicEnabled = !appState.musicEnabled;
+        localStorage.setItem('musicEnabled', appState.musicEnabled);
+        updateMusicUI();
+        
+        if (appState.musicEnabled) {
+            // UPDATED: Activating music also attempts app-like fullscreen natively in gesture
+            await attemptFullscreen();
+            playMusicSafely();
+        } else {
+            DOM.bgMusic.pause();
+        }
+    });
+}
+
+function playMusicSafely() {
+    DOM.bgMusic.play().catch(e => console.warn('Audio play blocked by browser:', e));
+}
+
+function updateMusicUI() {
+    DOM.musicIcon.textContent = appState.musicEnabled ? '🎵' : '🔇';
+}
+
+// ==========================================
+// 5. ROUTING (GITHUB PAGES SAFE)
+// ==========================================
+function handleRouting() {
+    const hash = window.location.hash.substring(1) || 'home';
+    appState.currentRoute = hash;
+
+    if (hash === 'home') {
+        DOM.homeView.classList.add('active');
+        DOM.homeView.classList.remove('hidden');
+        DOM.toolView.classList.remove('active');
+        DOM.toolView.classList.add('hidden');
+        document.title = 'CalcHub — Calculate Anything, Anytime';
+        renderHomeGrid(tools);
+        window.scrollTo(0, 0);
+    } else {
+        const tool = tools.find(t => t.id === hash);
+        if (tool) {
+            DOM.homeView.classList.remove('active');
+            DOM.homeView.classList.add('hidden');
+            DOM.toolView.classList.add('active');
+            DOM.toolView.classList.remove('hidden');
+            document.title = `${tool.name} — CalcHub`;
+            renderTool(tool);
+            renderRelatedTools(tool);
+            window.scrollTo(0, 0);
+            
+            // Ensure music keeps playing if enabled
+            if (appState.userInteracted && appState.musicEnabled && DOM.bgMusic.paused) {
+                playMusicSafely();
+            }
+        } else {
+            window.location.hash = '#home'; // fallback
+        }
+    }
+}
+window.addEventListener('hashchange', handleRouting);
+
+// ==========================================
+// 6. HOMEPAGE UI & SEARCH
+// ==========================================
+function initHomepage() {
+    // Categories
+    DOM.catFilters.innerHTML = categories.map(cat => 
+        `<button class="category-btn ${cat === 'All' ? 'active' : ''}" data-cat="${cat}">${cat}</button>`
+    ).join('');
+
+    DOM.catFilters.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            appState.currentCategory = e.target.getAttribute('data-cat');
+            filterTools();
+        }
+    });
+
+    // Search
+    DOM.searchInput.addEventListener('input', filterTools);
+}
+
+function filterTools() {
+    const query = DOM.searchInput.value.toLowerCase();
+    const filtered = tools.filter(tool => {
+        const matchesSearch = tool.name.toLowerCase().includes(query) || tool.keywords.some(k => k.includes(query));
+        const matchesCat = appState.currentCategory === 'All' || tool.category === appState.currentCategory;
+        return matchesSearch && matchesCat;
+    });
+    renderHomeGrid(filtered);
+}
+
+function renderHomeGrid(toolList) {
+    if (toolList.length === 0) {
+        DOM.toolsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary);">No tools found. Try searching for EMI, SIP, or Age.</p>`;
+        return;
+    }
+    DOM.toolsGrid.innerHTML = toolList.map(t => `
+        <a href="#${t.id}" class="tool-card glass-panel">
+            <div class="card-icon">${t.icon}</div>
+            <h3 class="card-title">${t.name}</h3>
+            <p class="card-desc">${t.desc}</p>
+            <span class="card-arrow">→ Open Tool</span>
+        </a>
+    `).join('');
+}
+
+function renderRelatedTools(currentTool) {
+    const related = tools.filter(t => t.category === currentTool.category && t.id !== currentTool.id).slice(0, 3);
+    DOM.relatedGrid.innerHTML = related.map(t => `
+        <a href="#${t.id}" class="tool-card glass-panel">
+            <h3 class="card-title" style="font-size:1.1rem">${t.icon} ${t.name}</h3>
+            <span class="card-arrow" style="font-size:0.85rem">→ Open</span>
+        </a>
+    `).join('');
+}
+
+// ==========================================
+// 7. CALCULATOR RENDER ENGINE
+// ==========================================
+function renderTool(tool) {
+    DOM.toolContentArea.innerHTML = `
+        <div class="tool-header">
+            <h2>${tool.icon} ${tool.name}</h2>
+            <p>${tool.desc}</p>
+        </div>
+        <div id="calc-workspace"></div>
+    `;
+    const workspace = document.getElementById('calc-workspace');
+
+    // Route to specific calculator builder
+    switch(tool.id) {
+        case 'emi': buildEMI(workspace); break;
+        case 'sip': buildSIP(workspace); break;
+        case 'percentage': buildPercentage(workspace); break;
+        case 'gst': buildGST(workspace); break;
+        case 'discount': buildDiscount(workspace); break;
+        case 'compound': buildCompound(workspace); break;
+        case 'age': buildAge(workspace); break;
+        case 'converter': buildConverter(workspace); break;
+        case 'basic': buildMathCalc(workspace, false); break;
+        case 'scientific': buildMathCalc(workspace, true); break;
+        default: workspace.innerHTML = '<p>Tool under construction.</p>';
+    }
+}
+
+// Helper: Standard Form Builder
+function createStandardForm(container, config) {
+    const html = `
+        <div class="calc-form">
+            ${config.inputs.map(input => `
+                <div class="form-group">
+                    <label for="${input.id}">${input.label}</label>
+                    <input type="${input.type || 'number'}" id="${input.id}" placeholder="${input.placeholder || '0'}" ${input.attrs || ''}>
+                </div>
+            `).join('')}
+            <button id="calc-btn" class="calc-submit-btn">${config.btnText || 'Calculate'}</button>
+            <div id="error-box" class="error-msg"></div>
+        </div>
+        <div id="result-box" class="result-area hidden" style="display:none;"></div>
+    `;
+    container.innerHTML = html;
+
+    document.getElementById('calc-btn').addEventListener('click', () => {
+        document.getElementById('error-box').innerText = '';
+        const vals = {};
+        let valid = true;
+        config.inputs.forEach(inp => {
+            const el = document.getElementById(inp.id);
+            const val = inp.type === 'date' ? el.value : parseFloat(el.value);
+            if ((inp.type !== 'date' && isNaN(val)) || (inp.type === 'date' && !val)) { valid = false; }
+            vals[inp.id] = val;
+        });
+
+        if (!valid) {
+            document.getElementById('error-box').innerText = 'Please enter valid numbers/dates in all fields.';
+            return;
+        }
+
+        try {
+            const resHTML = config.calculate(vals);
+            const resBox = document.getElementById('result-box');
+            resBox.innerHTML = resHTML;
+            resBox.style.display = 'block';
+        } catch (err) {
+            document.getElementById('error-box').innerText = err.message;
+        }
+    });
+}
+
+// ==========================================
+// 8. SPECIFIC CALCULATOR LOGIC
+// ==========================================
+
+// EMI Calculator
+function buildEMI(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'p', label: 'Loan Amount (₹)' },
+            { id: 'r', label: 'Annual Interest Rate (%)' },
+            { id: 'n', label: 'Tenure (Years)' }
+        ],
+        calculate: ({ p, r, n }) => {
+            if (p<=0 || r<0 || n<=0) throw new Error("Values must be greater than zero.");
+            const monthlyRate = r / 12 / 100;
+            const months = n * 12;
+            let emi = 0;
+            if (r === 0) emi = p / months;
+            else emi = p * monthlyRate * Math.pow(1 + monthlyRate, months) / (Math.pow(1 + monthlyRate, months) - 1);
+            
+            const totalPayment = emi * months;
+            const totalInterest = totalPayment - p;
+
+            return `
+                <div class="result-row highlight"><span>Monthly EMI:</span> <span>${Formatter.format(emi)}</span></div>
+                <div class="result-row"><span>Total Interest:</span> <span>${Formatter.format(totalInterest)}</span></div>
+                <div class="result-row"><span>Total Payment:</span> <span>${Formatter.format(totalPayment)}</span></div>
+            `;
+        }
+    });
+}
+
+// SIP Calculator
+function buildSIP(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'p', label: 'Monthly Investment (₹)' },
+            { id: 'r', label: 'Expected Annual Return (%)' },
+            { id: 'n', label: 'Time Period (Years)' }
+        ],
+        calculate: ({ p, r, n }) => {
+            if (p<=0 || r<0 || n<=0) throw new Error("Values must be positive.");
+            const monthlyRate = r / 12 / 100;
+            const months = n * 12;
+            const futureValue = p * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) * (1 + monthlyRate);
+            const totalInvested = p * months;
+            const estimatedReturn = futureValue - totalInvested;
+
+            return `
+                <div class="result-row highlight"><span>Total Value:</span> <span>${Formatter.format(futureValue)}</span></div>
+                <div class="result-row"><span>Invested Amount:</span> <span>${Formatter.format(totalInvested)}</span></div>
+                <div class="result-row"><span>Est. Returns:</span> <span>${Formatter.format(estimatedReturn)}</span></div>
+            `;
+        }
+    });
+}
+
+// Percentage Calculator
+function buildPercentage(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'val', label: 'Value' },
+            { id: 'total', label: 'Total Amount' }
+        ],
+        calculate: ({ val, total }) => {
+            if (total === 0) throw new Error("Total cannot be zero.");
+            const percent = (val / total) * 100;
+            const valOfTotal = (val / 100) * total;
+            return `
+                <div class="result-row highlight"><span>${val} is what % of ${total}?</span> <span>${percent.toFixed(2)}%</span></div>
+                <div class="result-row highlight"><span>What is ${val}% of ${total}?</span> <span>${valOfTotal.toFixed(2)}</span></div>
+            `;
+        }
+    });
+}
+
+// GST Calculator
+function buildGST(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'amount', label: 'Amount (₹)' },
+            { id: 'rate', label: 'GST Rate (%)' }
+        ],
+        calculate: ({ amount, rate }) => {
+            if (amount<0 || rate<0) throw new Error("Values must be positive.");
+            const gstAdded = amount * (rate / 100);
+            const totalAdd = amount + gstAdded;
+            const baseRemoved = amount / (1 + (rate / 100));
+            const gstRemoved = amount - baseRemoved;
+            return `
+                <div class="result-row" style="font-weight:bold; color:var(--text-secondary); margin-top:1rem;">If Adding GST:</div>
+                <div class="result-row highlight"><span>Net Price:</span> <span>${Formatter.format(totalAdd)}</span></div>
+                <div class="result-row"><span>GST Amount:</span> <span>${Formatter.format(gstAdded)}</span></div>
+                <hr style="margin:1rem 0; opacity:0.2;">
+                <div class="result-row" style="font-weight:bold; color:var(--text-secondary);">If Removing GST:</div>
+                <div class="result-row highlight"><span>Original Price:</span> <span>${Formatter.format(baseRemoved)}</span></div>
+                <div class="result-row"><span>GST Included:</span> <span>${Formatter.format(gstRemoved)}</span></div>
+            `;
+        }
+    });
+}
+
+// Discount Calculator
+function buildDiscount(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'price', label: 'Original Price (₹)' },
+            { id: 'discount', label: 'Discount (%)' }
+        ],
+        calculate: ({ price, discount }) => {
+            if (price<0 || discount<0 || discount>100) throw new Error("Invalid inputs.");
+            const saved = price * (discount / 100);
+            const finalPrice = price - saved;
+            return `
+                <div class="result-row highlight"><span>Final Price:</span> <span>${Formatter.format(finalPrice)}</span></div>
+                <div class="result-row"><span>You Save:</span> <span>${Formatter.format(saved)}</span></div>
+            `;
+        }
+    });
+}
+
+// Compound Interest
+function buildCompound(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'p', label: 'Principal Amount (₹)' },
+            { id: 'r', label: 'Annual Rate (%)' },
+            { id: 'n', label: 'Time Period (Years)' },
+            { id: 'freq', label: 'Compounding Frequency per Year (e.g. 1, 4, 12)' }
+        ],
+        calculate: ({ p, r, n, freq }) => {
+            if (p<=0 || r<0 || n<=0 || freq<=0) throw new Error("Invalid inputs.");
+            const amount = p * Math.pow(1 + (r / 100 / freq), freq * n);
+            const interest = amount - p;
+            return `
+                <div class="result-row highlight"><span>Total Amount:</span> <span>${Formatter.format(amount)}</span></div>
+                <div class="result-row"><span>Interest Earned:</span> <span>${Formatter.format(interest)}</span></div>
+            `;
+        }
+    });
+}
+
+// Age Calculator
+function buildAge(workspace) {
+    createStandardForm(workspace, {
+        inputs: [
+            { id: 'dob', label: 'Date of Birth', type: 'date' },
+            { id: 'target', label: 'Target Date (Leave blank for today)', type: 'date' }
+        ],
+        calculate: ({ dob, target }) => {
+            const start = new Date(dob);
+            const end = target ? new Date(target) : new Date();
+            if (start > end) throw new Error("Birth date must be before target date.");
+            
+            let years = end.getFullYear() - start.getFullYear();
+            let months = end.getMonth() - start.getMonth();
+            let days = end.getDate() - start.getDate();
+
+            if (days < 0) {
+                months--;
+                days += new Date(end.getFullYear(), end.getMonth(), 0).getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const diffTime = Math.abs(end - start);
+            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            return `
+                <div class="result-row highlight"><span>Age:</span> <span>${years} Y, ${months} M, ${days} D</span></div>
+                <div class="result-row"><span>Total Days:</span> <span>${totalDays.toLocaleString('en-IN')} days</span></div>
+            `;
+        }
+    });
+    // Set today's date as max for dob
+    document.getElementById('dob').max = new Date().toISOString().split("T")[0];
+}
+
+// Unit Converter
+function buildConverter(workspace) {
+    workspace.innerHTML = `
+        <div class="calc-form">
+            <div class="form-group">
+                <label>Category</label>
+                <select id="conv-cat">
+                    <option value="length">Length</option>
+                    <option value="weight">Weight</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Value</label>
+                <input type="number" id="conv-val" value="1">
+            </div>
+            <div style="display:flex; gap:1rem;">
+                <div class="form-group" style="flex:1;">
+                    <label>From</label>
+                    <select id="conv-from"></select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>To</label>
+                    <select id="conv-to"></select>
+                </div>
+            </div>
+            <div id="conv-result" class="result-area highlight" style="text-align:center; font-size:1.5rem; margin-top:1.5rem;"></div>
+        </div>
+    `;
+
+    const units = {
+        length: { m: 1, km: 1000, cm: 0.01, mm: 0.001, mile: 1609.34, yard: 0.9144, foot: 0.3048, inch: 0.0254 },
+        weight: { kg: 1, g: 0.001, mg: 0.000001, lb: 0.453592, oz: 0.0283495 }
+    };
+
+    const catEl = document.getElementById('conv-cat');
+    const fromEl = document.getElementById('conv-from');
+    const toEl = document.getElementById('conv-to');
+    const valEl = document.getElementById('conv-val');
+    const resEl = document.getElementById('conv-result');
+
+    const updateOptions = () => {
+        const cat = catEl.value;
+        const keys = Object.keys(units[cat]);
+        const opts = keys.map(k => `<option value="${k}">${k.toUpperCase()}</option>`).join('');
+        fromEl.innerHTML = opts;
+        toEl.innerHTML = opts;
+        if(keys.length > 1) toEl.selectedIndex = 1;
+        calc();
+    };
+
+    const calc = () => {
+        const cat = catEl.value;
+        const v = parseFloat(valEl.value);
+        if(isNaN(v)) return;
+        const baseVal = v * units[cat][fromEl.value];
+        const res = baseVal / units[cat][toEl.value];
+        resEl.innerHTML = `${v} ${fromEl.value} = ${res.toPrecision(6).replace(/\.0+$/, '')} ${toEl.value}`;
+    };
+
+    catEl.addEventListener('change', updateOptions);
+    fromEl.addEventListener('change', calc);
+    toEl.addEventListener('change', calc);
+    valEl.addEventListener('input', calc);
+    updateOptions();
+}
+
+// Basic / Scientific Math Calculator
+function buildMathCalc(workspace, isScientific) {
+    const basicBtns = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','.','+','(',')','DEL','='];
+    const sciBtns = ['sin','cos','tan','log','ln','^','sqrt','pi','e','!'].concat(basicBtns);
+    const layout = isScientific ? sciBtns : basicBtns;
+    
+    workspace.innerHTML = `
+        <div class="math-calc-display" id="math-display">0</div>
+        <div class="math-calc-grid ${isScientific ? 'scientific' : ''}">
+            ${layout.map(b => `<button class="math-btn ${['+','-','*','/','=','C','DEL'].includes(b) ? 'op' : ''} ${b==='=' ? 'eq' : ''}">${b}</button>`).join('')}
+        </div>
+    `;
+
+    const display = document.getElementById('math-display');
+    let expr = '';
+
+    workspace.querySelector('.math-calc-grid').addEventListener('click', (e) => {
+        if (e.target.tagName !== 'BUTTON') return;
+        const val = e.target.innerText;
+        
+        if (val === 'C') { expr = ''; display.innerText = '0'; return; }
+        if (val === 'DEL') { expr = expr.slice(0, -1); display.innerText = expr || '0'; return; }
+        if (val === '=') {
+            try { 
+                let evalStr = expr
+                    .replace(/pi/g, 'Math.PI')
+                    .replace(/e/g, 'Math.E')
+                    .replace(/sin\(/g, 'Math.sin(')
+                    .replace(/cos\(/g, 'Math.cos(')
+                    .replace(/tan\(/g, 'Math.tan(')
+                    .replace(/log\(/g, 'Math.log10(')
+                    .replace(/ln\(/g, 'Math.log(')
+                    .replace(/sqrt\(/g, 'Math.sqrt(')
+                    .replace(/\^/g, '**');
+
+                if(!/^[0-9+\-*/.%()Math\.PIEsincoastnlgqer\*\* ]+$/.test(evalStr)) throw new Error("Invalid");
+                
+                const result = new Function(`'use strict'; return (${evalStr})`)();
+                if(isNaN(result) || !isFinite(result)) throw new Error("Math Error");
+                
+                expr = String(Math.round(result * 100000000) / 100000000); 
+                display.innerText = expr;
+            } catch { display.innerText = 'Error'; expr = ''; }
+            return;
+        }
+
+        if (['sin','cos','tan','log','ln','sqrt'].includes(val)) {
+            expr += val + '(';
+        } else if (val === '!') {
+            alert("Factorial requires manual expansion in this MVP version.");
+        } else {
+            expr += val;
+        }
+        
+        display.innerText = expr;
+    });
+}
+
+// ==========================================
+// 9. BOOTSTRAP APPLICATION
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    initFullscreen(); // NEW: Boot up fullscreen delegation listeners
+    initMusic();
+    initHomepage();
+    handleRouting(); 
+});
+</script>
+</body>
+</html>
